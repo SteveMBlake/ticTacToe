@@ -43,7 +43,31 @@ void dispBoard(char board[][10], int size) {
     for (int col = 0; col < size; col++) {
         printf("----");
     }
-    printf("-\n");
+    printf("-\n\n");
+}
+
+// Accept input from player
+int acceptInput(int* row, int* col, int size) {
+    printf("Enter row and column (0-%d): ", size - 1);
+    
+    // Check if scanf reads two integers
+    int check = scanf("%d %d", row, col);
+    if (check != 2) {
+        printf("\nInvalid input! Please enter two integers.\n");
+        while (getchar() != '\n'); // clear input buffer
+        return 0;
+    }
+    if (*row < 0 || *row >= size || *col < 0 || *col >= size) {
+        printf("\nInvalid position! Try again.\n");
+        return 0;
+    }
+    printf("\n");
+    return 1;
+}
+
+// Validate if cell is free
+int validateMove(char board[][MAX], int row, int col) {
+    return (board[row][col] == ' ');
 }
 
 int main() {
