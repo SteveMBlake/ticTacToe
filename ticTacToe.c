@@ -1,4 +1,5 @@
 #include <stdio.h>
+#define MAX 10
 
 // Display menu
 void menu() {
@@ -7,7 +8,7 @@ void menu() {
 }
 
 // Function to initialize the board with spaces
-void initBoard(char board[][10], int size) {
+void initBoard(char board[][MAX], int size) {
     for (int row = 0; row < size; row++) {
         for (int col = 0; col < size; col++) {
             board[row][col] = ' ';
@@ -16,7 +17,7 @@ void initBoard(char board[][10], int size) {
 }
 
 // Function to print the board in a formatted way
-void dispBoard(char board[][10], int size) {
+void dispBoard(char board[][MAX], int size) {
     // Print column headers
     printf("    ");
     for (int col = 0; col < size; col++) {
@@ -78,12 +79,12 @@ int main() {
     scanf("%d", &size);
     printf("\n");
 
-    if (size < 3 || size > 10) {
+    if (size < 3 || size > MAX) {
         printf("Invalid size! Must be between 3 and 10.\n");
         return 1;
     }
 
-    char board[10][10];
+    char board[MAX][MAX];
 
     initBoard(board, size);
     dispBoard(board, size);
