@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #define MAX 10
 
 // Display menu
@@ -165,6 +166,15 @@ void logBoard(FILE* logFile, char board[][MAX], int size) {
         fprintf(logFile, "----");
     }
     fprintf(logFile, "-\n\n");
+}
+
+// Computer move (random)
+void computerMove(char board[][MAX], int size, int* row, int* col) {
+    do {
+        *row = rand() % size;
+        *col = rand() % size;
+    } while (!validateMove(board, *row, *col));
+    printf("Computer chooses: %d %d\n\n", *row, *col);
 }
 
 int main() {
