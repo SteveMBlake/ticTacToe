@@ -6,8 +6,9 @@
 void menu() {
     printf("Tic Tac Toe Game\n");
     printf("----------------\n");
-    printf("1. Start Game\n");
-    printf("2. Exit\n");
+    printf("1. Player vs Player\n");
+    printf("2. Player vs Computer\n");
+    printf("3. Exit\n");
     printf("----------------\n");
 }
 
@@ -20,9 +21,8 @@ void initBoard(char board[][MAX], int size) {
     }
 }
 
-// Function to print the board in a formatted way
+// Function to print the board
 void dispBoard(char board[][MAX], int size) {
-    // Print column headers
     printf("    ");
     for (int col = 0; col < size; col++) {
         printf("%d   ", col);
@@ -43,7 +43,6 @@ void dispBoard(char board[][MAX], int size) {
         printf("|\n");
     }
 
-    // bottom border
     printf("  ");
     for (int col = 0; col < size; col++) {
         printf("----");
@@ -54,12 +53,10 @@ void dispBoard(char board[][MAX], int size) {
 // Accept input from player
 int acceptInput(int* row, int* col, int size) {
     printf("Enter row and column (0-%d): ", size - 1);
-    
-    // Check if scanf reads two integers
     int check = scanf("%d %d", row, col);
     if (check != 2) {
         printf("\nInvalid input! Please enter two integers.\n");
-        while (getchar() != '\n'); // clear input buffer
+        while (getchar() != '\n');
         return 0;
     }
     if (*row < 0 || *row >= size || *col < 0 || *col >= size) {
@@ -79,7 +76,6 @@ int validateMove(char board[][MAX], int row, int col) {
 int checkWin(char board[][MAX], int size, char symbol) {
     int win;
 
-    // Check rows
     for (int i = 0; i < size; i++) {
         win = 1;
         for (int j = 0; j < size; j++) {
@@ -91,7 +87,6 @@ int checkWin(char board[][MAX], int size, char symbol) {
         if (win) return 1;
     }
 
-    // Check columns
     for (int j = 0; j < size; j++) {
         win = 1;
         for (int i = 0; i < size; i++) {
@@ -103,7 +98,6 @@ int checkWin(char board[][MAX], int size, char symbol) {
         if (win) return 1;
     }
 
-    // Check diagonal
     win = 1;
     for (int i = 0; i < size; i++) {
         if (board[i][i] != symbol) {
@@ -113,7 +107,6 @@ int checkWin(char board[][MAX], int size, char symbol) {
     }
     if (win) return 1;
 
-    // Check anti-diagonal
     win = 1;
     for (int i = 0; i < size; i++) {
         if (board[i][size - 1 - i] != symbol) {
@@ -136,38 +129,6 @@ int checkDraw(char board[][MAX], int size) {
     return 1;
 }
 
-// Log board state to file
-void logBoard(FILE* logFile, char board[][MAX], int size) {
-    fprintf(logFile, "\nBoard State:\n");
-
-    // column headers
-    fprintf(logFile, "    ");
-    for (int col = 0; col < size; col++) {
-        fprintf(logFile, "%d   ", col);
-    }
-    fprintf(logFile, "\n");
-
-    for (int row = 0; row < size; row++) {
-        fprintf(logFile, "  ");
-        for (int col = 0; col < size; col++) {
-            fprintf(logFile, "----");
-        }
-        fprintf(logFile, "-\n");
-
-        fprintf(logFile, "%d ", row);
-        for (int col = 0; col < size; col++) {
-            fprintf(logFile, "| %c ", board[row][col]);
-        }
-        fprintf(logFile, "|\n");
-    }
-
-    fprintf(logFile, "  ");
-    for (int col = 0; col < size; col++) {
-        fprintf(logFile, "----");
-    }
-    fprintf(logFile, "-\n\n");
-}
-
 // Computer move (random)
 void computerMove(char board[][MAX], int size, int* row, int* col) {
     do {
@@ -178,77 +139,113 @@ void computerMove(char board[][MAX], int size, int* row, int* col) {
 }
 
 int main() {
-    int size;
+    int size, mode;
     menu();
+    printf("Choose mode: ");
+    scanf("%d", &mode);
 
-    // Loop until valid size is entered
-    do{
-		printf("Enter board size N x N (3 <= N <= 10): ");
+    if (mode == 3) {
+        printf("Exiting game...\n");
+        return 0;
+    }
+
+    do {
+        printf("Enter board size N x N (3 <= N <= 10): ");
         scanf("%d", &size);
         printf("\n");
-
         if (size < 3 || size > MAX) {
             printf("Invalid board size! Must be between 3 and 10.\n\n");
         }
-	}while(size < 3 || size > MAX);
+    } while (size < 3 || size > MAX);
 
     char board[MAX][MAX];
     initBoard(board, size);
 
-    // Open log file
-    FILE* logFile = fopen("ticTacToe_log.txt", "w");
-    if (!logFile) {
-        printf("Error opening log file.\n");
-        return 1;
-    }
-
-    int turn = 0;
+    int turn = 0;  // 0 = X, 1 = O
     int row, col;
     char playerSymbol;
     int gameOver = 0;
 
-    while (!gameOver) {
-        dispBoard(board, size);
+    switch (mode) {
+        case 1: // Player vs Player
+            while (!gameOver) {
+                dispBoard(board, size);
 
-        // Take turns 0 = X, 1 = O and display whose turn it is
-        if (turn == 0) {
-            playerSymbol = 'X';
-        } else {
-            playerSymbol = 'O';
-        }
-        printf("Player %c's turn.\n", playerSymbol);
+                playerSymbol = (turn == 0) ? 'X' : 'O';
+                printf("Player %c's turn.\n", playerSymbol);
 
-        // Input and validation
-        while (1) {
-            if (!acceptInput(&row, &col, size)) 
-                continue;
-            if (!validateMove(board, row, col)) {
-                printf("Cell already occupied! Try again.\n\n");
-            } else {
-                break;
+                while (1) {
+                    if (!acceptInput(&row, &col, size))
+                        continue;
+                    if (!validateMove(board, row, col)) {
+                        printf("Cell already occupied! Try again.\n\n");
+                    } else {
+                        break;
+                    }
+                }
+
+                board[row][col] = playerSymbol;
+
+                if (checkWin(board, size, playerSymbol)) {
+                    dispBoard(board, size);
+                    printf("Player %c wins!\n", playerSymbol);
+                    gameOver = 1;
+                } else if (checkDraw(board, size)) {
+                    dispBoard(board, size);
+                    printf("It's a draw!\n");
+                    gameOver = 1;
+                } else {
+                    turn = 1 - turn;
+                }
             }
-        }
+            break;
 
-        // Place move
-        board[row][col] = playerSymbol;
+        case 2: // Player vs Computer
+            while (!gameOver) {
+                dispBoard(board, size);
 
-        // Log board state
-        logBoard(logFile, board, size);
+                if (turn == 0) { // Player
+                    playerSymbol = 'X';
+                    printf("Your turn (Player %c).\n", playerSymbol);
+                    while (1) {
+                        if (!acceptInput(&row, &col, size))
+                            continue;
+                        if (!validateMove(board, row, col)) {
+                            printf("Cell already occupied! Try again.\n\n");
+                        } else {
+                            break;
+                        }
+                    }
+                } else { // Computer
+                    playerSymbol = 'O';
+                    printf("Computer's turn (Player %c).\n", playerSymbol);
+                    computerMove(board, size, &row, &col);
+                }
 
-        // Check win/draw
-        if (checkWin(board, size, playerSymbol)) {
-            dispBoard(board, size);
-            printf("Player %c wins!\n", playerSymbol);
-            gameOver = 1;
-        } else if (checkDraw(board, size)) {
-            dispBoard(board, size);
-            printf("It's a draw!\n");
-            gameOver = 1;
-        } else {
-            turn = 1 - turn; // Switch turns
-        }
+                board[row][col] = playerSymbol;
+
+                if (checkWin(board, size, playerSymbol)) {
+                    dispBoard(board, size);
+                    if (turn == 0) {
+                        printf("You win!\n");
+                    } else {
+                        printf("Computer wins!\n");
+                    }
+                    gameOver = 1;
+                } else if (checkDraw(board, size)) {
+                    dispBoard(board, size);
+                    printf("It's a draw!\n");
+                    gameOver = 1;
+                } else {
+                    turn = 1 - turn;
+                }
+            }
+            break;
+
+        default:
+            printf("Invalid option!\n");
+            break;
     }
 
-    fclose(logFile);
     return 0;
 }
