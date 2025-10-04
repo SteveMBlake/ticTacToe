@@ -9,7 +9,8 @@ void menu()
     printf("----------------\n");
     printf("1. Player vs Player\n");
     printf("2. Player vs Computer\n");
-    printf("3. Exit\n");
+    printf("3. Three Players\n");
+    printf("4. Exit\n");
     printf("----------------\n");
 }
 
@@ -214,12 +215,13 @@ void logBoard(FILE *logFile, char board[][MAX], int size)
 
 int main()
 {
+
     int size, mode;
     menu();
     printf("Choose mode: ");
     scanf("%d", &mode);
 
-    if (mode == 3)
+    if (mode == 4)
     {
         printf("Exiting game...\n");
         return 0;
@@ -239,9 +241,6 @@ int main()
     char board[MAX][MAX];
     initBoard(board, size);
 
-    int turn = 0; // 0 = X, 1 = O
-    int row, col;
-    char playerSymbol;
     int gameOver = 0;
 
     // Open log file
@@ -255,61 +254,18 @@ int main()
     switch (mode)
     {
     case 1: // Player vs Player
-        while (!gameOver)
         {
-            dispBoard(board, size);
-            logBoard(logFile, board, size);
-
-            playerSymbol = (turn == 0) ? 'X' : 'O';
-            printf("Player %c's turn.\n", playerSymbol);
-
-            while (1)
-            {
-                if (!acceptInput(&row, &col, size))
-                    continue;
-                if (!validateMove(board, row, col))
-                {
-                    printf("Cell already occupied! Try again.\n\n");
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            board[row][col] = playerSymbol;
-
-            if (checkWin(board, size, playerSymbol))
+            int turn = 0; // 0 = X, 1 = O
+            int row, col;
+            char playerSymbol;
+            while (!gameOver)
             {
                 dispBoard(board, size);
                 logBoard(logFile, board, size);
-                printf("Player %c wins!\n", playerSymbol);
-                gameOver = 1;
-            }
-            else if (checkDraw(board, size))
-            {
-                dispBoard(board, size);
-                logBoard(logFile, board, size);
-                printf("It's a draw!\n");
-                gameOver = 1;
-            }
-            else
-            {
-                turn = 1 - turn;
-            }
-        }
-        break;
 
-    case 2: // Player vs Computer
-        while (!gameOver)
-        {
-            dispBoard(board, size);
-            logBoard(logFile, board, size);
+                playerSymbol = (turn == 0) ? 'X' : 'O';
+                printf("Player %c's turn.\n", playerSymbol);
 
-            if (turn == 0)
-            { // Player
-                playerSymbol = 'X';
-                printf("Your turn (Player %c).\n", playerSymbol);
                 while (1)
                 {
                     if (!acceptInput(&row, &col, size))
@@ -323,40 +279,176 @@ int main()
                         break;
                     }
                 }
-            }
-            else
-            { // Computer
-                playerSymbol = 'O';
-                printf("Computer's turn (Player %c).\n", playerSymbol);
-                computerMove(board, size, &row, &col);
-            }
 
-            board[row][col] = playerSymbol;
+                board[row][col] = playerSymbol;
 
-            if (checkWin(board, size, playerSymbol))
-            {
-                dispBoard(board, size);
-                logBoard(logFile, board, size);
-                if (turn == 0)
+                if (checkWin(board, size, playerSymbol))
                 {
-                    printf("You win!\n");
+                    dispBoard(board, size);
+                    logBoard(logFile, board, size);
+                    printf("Player %c wins!\n", playerSymbol);
+                    gameOver = 1;
+                }
+                else if (checkDraw(board, size))
+                {
+                    dispBoard(board, size);
+                    logBoard(logFile, board, size);
+                    printf("It's a draw!\n");
+                    gameOver = 1;
                 }
                 else
                 {
-                    printf("Computer wins!\n");
+                    turn = 1 - turn;
                 }
-                gameOver = 1;
             }
-            else if (checkDraw(board, size))
+        }
+        break;
+
+    case 2: // Player vs Computer
+        {
+            int turn = 0; // 0 = X (human), 1 = O (computer)
+            int row, col;
+            char playerSymbol;
+            while (!gameOver)
             {
                 dispBoard(board, size);
                 logBoard(logFile, board, size);
-                printf("It's a draw!\n");
-                gameOver = 1;
+
+                if (turn == 0)
+                { // Player
+                    playerSymbol = 'X';
+                    printf("Your turn (Player %c).\n", playerSymbol);
+                    while (1)
+                    {
+                        if (!acceptInput(&row, &col, size))
+                            continue;
+                        if (!validateMove(board, row, col))
+                        {
+                            printf("Cell already occupied! Try again.\n\n");
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                { // Computer
+                    playerSymbol = 'O';
+                    printf("Computer's turn (Player %c).\n", playerSymbol);
+                    computerMove(board, size, &row, &col);
+                }
+
+                board[row][col] = playerSymbol;
+
+                if (checkWin(board, size, playerSymbol))
+                {
+                    dispBoard(board, size);
+                    logBoard(logFile, board, size);
+                    if (turn == 0)
+                    {
+                        printf("You win!\n");
+                    }
+                    else
+                    {
+                        printf("Computer wins!\n");
+                    }
+                    gameOver = 1;
+                }
+                else if (checkDraw(board, size))
+                {
+                    dispBoard(board, size);
+                    logBoard(logFile, board, size);
+                    printf("It's a draw!\n");
+                    gameOver = 1;
+                }
+                else
+                {
+                    turn = 1 - turn;
+                }
             }
-            else
+        }
+        break;
+
+    case 3: // Three Players
+        {
+            char symbols[3] = {'X', 'O', 'Z'};
+            int isHuman[3];
+            int numHumans = 0;
+
+            printf("Configure players (at least one must be human):\n");
+            for (int p = 0; p < 3; p++)
             {
-                turn = 1 - turn;
+                char choice;
+                do
+                {
+                    printf("Player %d (%c): 'h' for human, 'c' for computer: ", p + 1, symbols[p]);
+                    scanf(" %c", &choice);
+                } while (choice != 'h' && choice != 'c');
+                isHuman[p] = (choice == 'h');
+                if (isHuman[p]) numHumans++;
+            }
+
+            if (numHumans == 0)
+            {
+                printf("At least one human required. Setting Player 1 as human.\n");
+                isHuman[0] = 1;
+            }
+
+            int turn = 0;
+            int row, col;
+            char playerSymbol;
+            while (!gameOver)
+            {
+                dispBoard(board, size);
+                logBoard(logFile, board, size);
+
+                int current = turn % 3;
+                playerSymbol = symbols[current];
+                printf("Player %d (%c)'s turn.\n", current + 1, playerSymbol);
+
+                if (isHuman[current])
+                {
+                    while (1)
+                    {
+                        if (!acceptInput(&row, &col, size))
+                            continue;
+                        if (!validateMove(board, row, col))
+                        {
+                            printf("Cell already occupied! Try again.\n\n");
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    computerMove(board, size, &row, &col);
+                    printf("Player %d (%c) chooses: %d %d\n", current + 1, playerSymbol, row, col);
+                }
+
+                board[row][col] = playerSymbol;
+
+                if (checkWin(board, size, playerSymbol))
+                {
+                    dispBoard(board, size);
+                    logBoard(logFile, board, size);
+                    printf("Player %d (%c) wins!\n", current + 1, playerSymbol);
+                    gameOver = 1;
+                }
+                else if (checkDraw(board, size))
+                {
+                    dispBoard(board, size);
+                    logBoard(logFile, board, size);
+                    printf("It's a draw!\n");
+                    gameOver = 1;
+                }
+                else
+                {
+                    turn++;
+                }
             }
         }
         break;
