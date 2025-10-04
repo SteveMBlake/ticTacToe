@@ -245,7 +245,7 @@ int main()
     int gameOver = 0;
 
     // Open log file
-    FILE *logFile = fopen("tictactoe_log.txt", "w");
+    FILE *logFile = fopen("ticTacToe_log.txt", "w");
     if (!logFile)
     {
         printf("Error opening log file!\n");
